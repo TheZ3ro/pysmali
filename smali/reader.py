@@ -595,6 +595,9 @@ class SmaliReader:
     def _handle_subannotation(self) -> None:
         """Handles .subannotation definitions."""
         try:
+            token = next(self.line)
+            self._validate_token(token, Token.SUBANNOTATION)
+            
             # As we need the annotation value's name, we have to
             # use the cleaned line buffer in the current line object.
             name = self.line.cleaned[self.line.cleaned.find(" ") :]

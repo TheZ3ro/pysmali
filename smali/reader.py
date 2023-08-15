@@ -725,7 +725,10 @@ class SmaliReader:
         next(self.line)
 
         register = next(self.line)
-        name = self.line.peek().strip('"')
+        if self.line.cleaned.find('"') != -1:
+            name = self.line.peek().strip('"')
+        else:
+            name = ""
         self._visitor.visit_param(register, name)
         self._publish_comment()
 

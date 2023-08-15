@@ -781,9 +781,12 @@ class SmaliReader:
             self._copy_line()
             return
 
-        next(self.line)
         # 1. Handle the exception descriptor
-        descriptor = self.line.peek()
+        if not is_catchall:
+            next(self.line)
+            descriptor = self.line.peek()
+        else:
+            descriptor = "Ljava/lang/Exception;"
         self._validate_descriptor(descriptor)
 
         # 2. Collect try_start and try_end blocks

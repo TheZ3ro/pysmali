@@ -595,6 +595,9 @@ class SmaliReader:
     def _handle_subannotation(self) -> None:
         """Handles .subannotation definitions."""
         try:
+            token = next(self.line)
+            self._validate_token(token, Token.SUBANNOTATION)
+            
             # As we need the annotation value's name, we have to
             # use the cleaned line buffer in the current line object.
             name = self.line.cleaned[self.line.cleaned.find(" ") :]
@@ -722,7 +725,10 @@ class SmaliReader:
         next(self.line)
 
         register = next(self.line)
-        name = self.line.peek().strip('"')
+        if self.line.cleaned.find('"') != -1:
+            name = self.line.peek().strip('"')
+        else:
+            name = ""
         self._visitor.visit_param(register, name)
         self._publish_comment()
 
@@ -775,9 +781,12 @@ class SmaliReader:
             self._copy_line()
             return
 
-        next(self.line)
         # 1. Handle the exception descriptor
-        descriptor = self.line.peek()
+        if not is_catchall:
+            next(self.line)
+            descriptor = self.line.peek()
+        else:
+            descriptor = "Ljava/lang/Exception;"
         self._validate_descriptor(descriptor)
 
         # 2. Collect try_start and try_end blocks

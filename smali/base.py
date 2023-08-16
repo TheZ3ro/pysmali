@@ -321,7 +321,7 @@ class Line:
         elements = []
 
         while end != -1:
-            if end - 1 > 0 and cleaned[end - 1] == '"':
+            if end - 1 > 0 and cleaned[end - 1] == '"' and in_literal:
                 in_literal = False
                 elements.append(cleaned[start:end])
                 start = end + 1

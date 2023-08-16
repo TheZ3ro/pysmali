@@ -4,6 +4,19 @@
 Changelog
 *********
 
+.. _release-0.2.1:
+
+0.2.1
+=====
+
+Kudos to `serenees <https://github.com/serenees>`_ for fixing these issues:
+
+* Fixed an issue where ``Line.split_line`` would return incorrect results if the input string started with the provided separator.
+* Added *".subannotation"* token verification
+* Added support to handle unnamed *".param"* declarations
+* Changed exception descriptor of *".catchall"* to ``Ljava/lang/Exception;`` for all cases
+
+
 .. _release-0.2.0:
 
 0.2.0

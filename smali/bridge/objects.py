@@ -30,3 +30,17 @@ Class = {
     "getName()Ljava/lang/String;": lambda x: x.simple_name
 }
 
+def java_lang_String_hashCode(text):
+    sign = 1 << 31
+    hashCode = sum(ord(t)*31**i for i, t in enumerate(reversed(text)))
+    return (hashCode & sign-1) - (hashCode & sign)
+
+String = {
+    "hashCode()I": java_lang_String_hashCode,
+}
+
+implementations = {
+    "Ljava/lang/Class;": Class,
+    "Ljava/lang/Object;": Object,
+    "Ljava/lang/String;": String,
+}

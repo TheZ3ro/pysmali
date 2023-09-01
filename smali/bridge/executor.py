@@ -6,7 +6,7 @@ from smali.opcode import *  # noqa
 from smali.bridge.frame import Frame
 from smali.bridge.errors import ExecutionError
 from smali.bridge.lang import SmaliObject
-from smali.bridge.objects import Object, Class
+from smali.bridge.objects import implementations
 
 cache = {}
 """Sepcial dict tat stores all opcodes with their executors"""
@@ -123,26 +123,18 @@ def invoke(self: Executor, inv_type, args, owner, method):
     # TODO: add direct calls to int or str objects
     if inv_type in ("direct", "virtual", "static"):
         vm_class = None
-        if owner == "Ljava/lang/Class;":
+        if owner in implementations:
+            impl = implementations[owner]
+
             # If class methods should be invoked, just use the
             # previously moved class object
             vm_class = self.frame[args[0]]
-            if method not in Class:
+            if method not in impl:
                 raise ExecutionError(
-                    "NoSuchMethodError", f"method '{method}' not defined!"
+                    "NoSuchMethodError", f"method '{method}' not defined for {owner}!"
                 )
 
-            self.frame.method_return = Class[method](vm_class)
-            return
-
-        if owner == "Ljava/lang/Object;":
-            if method not in Object:
-                raise ExecutionError(
-                    "NoSuchMethodError", f"method '{method}' not defined!"
-                )
-
-            target = Object[method]
-            self.frame.method_return = target(self.frame[args[0]])
+            self.frame.method_return = impl[method](vm_class)
             return
 
         values = [self.frame[register] for register in args]
@@ -333,6 +325,17 @@ def move(self: Executor, dest: str, src: str):
     self.frame[dest] = self.frame[src]
 
 
+@opcode_executor(
+    map_to=[
+        MOVE_OBJECT,
+        MOVE_OBJECT_16,
+        MOVE_OBJECT_FROM16
+    ]
+)
+def move_object(self: Executor, dest: str, src: str):
+    self.frame[dest] = self.frame[src]
+
+
 @opcode_executor()
 def move_exception(self: Executor, dest: str):
     self.frame[dest] = self.frame.error
@@ -422,7 +425,7 @@ def packed_switch(self: Executor, register: str, data: str):
     goto.action(self, cases[idx])
 
 
-@opcode_executor
+@opcode_executor()
 def sparse_switch(self: Executor, register: str, label_name: str):
     branches = self.frame.switch_data[label_name]
     value = self.frame[register]

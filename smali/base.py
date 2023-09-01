@@ -723,7 +723,7 @@ RE_TYPE_VALUE = re.compile(r"\[*((L\S*;$)|([ZCBSIFVJD])$)")  # NOQA
 RE_BOOL_VALUE = re.compile(r"true|false")
 """Pattern for ``boolean`` values."""
 
-RE_HEX_VALUE = re.compile(r"0x[\dabcdefABCDEF]+")
+RE_HEX_VALUE = re.compile(r"[\-\+]?0x[\dabcdefABCDEF]+")
 """Pattern for integer values."""
 
 TYPE_MAP: list = [
@@ -735,7 +735,7 @@ TYPE_MAP: list = [
     (RE_FLOAT_VALUE, lambda x: float(x[:-1])),
     (RE_DOUBLE_VALUE, lambda x: float(x[:-1])),
     (RE_CHAR_VALUE, lambda x: str(x[1:-1])),
-    (RE_STRING_VALUE, lambda x: str(x[1:-1])),
+    (RE_STRING_VALUE, lambda x: str(x[1:-1]).encode().decode('unicode_escape')), # support unicode
     (RE_TYPE_VALUE, SVMType),
 ]
 """Defines custom handlers for actual value defintions
